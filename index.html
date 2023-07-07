@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="icon" type="image/png" href="img/fruit.png">
+  <script src="js/d3.min.js"></script>
+  <script src="js/d3-annotation.min.js"></script>
+  <script src="js/index.js"></script>
+  <title>Naomi Bhagat - Final Project</title>
+</head>
+
+<body onload="init()">
+  <div class="container my-5">
+    <!-- Titles -->
+    <h1 class="display-1 text-center">Where Do Fruits Come From?</h1>
+    <h1 class="h2 text-center">And how does their point of origin affect their price?</h1>
+    <h1 class="h3 text-center">UIUC CS416 Narrative Visualization Project</h1>
+    <h1 class="h4 text-center">Naomi Bhagat</h1>
+    <br>
+    <!-- Introduction to Narrative Vizualization -->
+    <br>
+    <p class="text-center">How often do we think about where our food comes from?</p>
+    <p>
+      Many middle to upper-middle class Americans go to the grocery store at least once a week to buy meats, dairy, and of course, veggies and fruits. However, it's very rare
+      that the average person knows where their fruits come from. In this visualization, we will explore where our fruits come from, and what effect their import location has
+      on their prices in their various forms, including fresh, canned, dried, frozen, and fruit juice. 
+      <br>
+      <br>
+      The first two scenes of this visualiation focus solely on fresh fruits, including apples, apricots, bananas, blackberries, blueberries, cantaloupe, cherries, clementines,
+      grapefruit, grapes, honeydew, kiwi, mangoes, nectarines, oranges, papaya, peaches, pears, pineapple, plums, pomegranate, raspberries, strawberries, and watermelon.      
+    </p>
+    <br>
+    <!-- Scene 1: Pie Chart of where all of our fruits come from in the US -->
+    <br>
+    <h3 class="text-center">Where do our Fruits Come From?</h3>
+    <p>
+      Let's start with the big question: where do Americans get their fruits from? I'm pretty sure all of us know that our peaches come from Georgia (thanks Justin Bieber!) and 
+      our oranges are typically from somewhere in Florida. But do you know where your watermelons come from? How about your strawberries? The only reason I know that cranberries
+      are grown in Wisconsin is because I lived there for 16 years! This pie chart describes the regions from which our fruit comes into the United States. The colors in the pie
+      chart correspond to the United States regions map shown on the right.
+    </p>
+    <div class="container" style="text-align: center">
+      <div class="row">
+        <div class="col-sm" style="text-align: center">
+          <svg id="pie-chart" width=500 height=300></svg>
+        </div>
+        <div class="col-sm">
+          <img src="img/UnitedStatesRegions.jpg" class="img-fluid">
+        </div>
+      </div>
+    </div>
+    <br>
+    <p>
+      From the above charts, we can see that of the fresh fruit included in this dataset, the vast majority of fruit grown in the United States comes from either the West Coast
+       - specifically, California, Oregon, and Washington - and the Southern region. Some fruits, such as mangoes and papayas, are grown exclusively in Hawaii. Others, such as
+       the tart cherries often enjoyed as a light snack, are from the humble Midwestern state of Michigan.
+    </p>
+    <!-- Scene 2: Average Price of Fruit per Pound/Pint per season + where they're from -->
+    <br>
+    <h3 class="text-center">Average Price of Fruit per Season</h3>
+    <p>
+      Okay, now we know that fruits don't come from the stork. Now, let's take a look at which fruits are in season when. Which fruits are priciest, and where do they come from?
+      In this series of charts, we explore the four seasons, and plot the average price per fruit per pound against each fruit's respective seasons. To the right, the pie charts
+      describe the region breakdown from season to season.
+    </p>
+    <div class="container" style="text-align: center">
+      <div class="row">
+        <div class="col-sm" style="text-align: center">
+          <svg id="bar-chart" width=500 height=550></svg>
+        </div>
+        <div class="col-sm">
+          <div class="row">
+            <div class="col-sm" style="text-align: center">
+              <svg id="spring-pie-chart" width=200 height=250></svg>
+            </div>
+            <div class="col-sm" style="text-align: center">
+              <svg id="summer-pie-chart" width=200 height=250></svg>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm" style="text-align: center">
+              <svg id="fall-pie-chart" width=200 height=250></svg>
+            </div>
+            <div class="col-sm" style="text-align: center">
+              <svg id="winter-pie-chart" width=200 height=250></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      async function init() {
+        const data = await d3.csv('https://raw.githubusercontent.com/thenerdgirl/uiuc-cs416-DataViz-FinalProjectData/main/FruitPricesPerSeason.csv');
+        var x = d3.scaleBand().domain(['Spring','Summer','Fall','Winter']).range([0,400]);
+        var y = d3.scaleLinear().domain([0,3]).range([400,0]);
+        var c = ["yellow","green","orange","blue"]
+        d3.select("#bar-chart")
+            .append("g")
+                .attr("transform","translate(50,50)")
+            .selectAll("rect")
+            .data(data)
+            .enter()
+            .append("rect")
+                .attr("x",function(d,i) { return x.bandwidth()*i; })
+                .attr("y",function(d) { return y(d.AvgPrice); })
+                .attr("width",x.bandwidth())
+                .attr("height",function(d,i) { return 400 - y(d.AvgPrice); })
+                .attr("fill",function(d,i) { return c[i]; })
+        d3.select("#bar-chart")
+            .append("g")
+            .attr("transform","translate(50,50)")
+            .call(d3.axisLeft(y));
+        d3.select("#bar-chart")
+            .append("g")
+            .attr("transform","translate(50,450)")
+            .call(d3.axisBottom(x));
+        
+        // Axis labels
+        d3.select("#bar-chart")
+            .append("text")
+                .attr("x", 250)
+                .attr("y", 500)
+                .style("text-anchor","middle")
+                .text("Season");
+        
+        d3.select("#bar-chart")
+            .append("text")
+                .attr("transform","rotate(-90)")
+                .attr("y", -5)
+                .attr("x", 0 - 250)
+                .attr("dy", "1em")
+                .style("text-anchor","middle")
+                .text("Retail Price per Unit ($)");
+
+        // Add annotations
+        const annotations = [
+          {
+            note: {
+            label: "Because fruits are gathered from all regions of the United States, including Hawaii, summertime is the most expensive time to buy them!",
+            title: "Summertime Wallet Sadness",
+            wrap: 300,  // try something smaller to see text split in several lines
+            padding: 10   // More = text lower
+            
+          },
+          color: ["green"],
+          x: 200,
+          y: 135,
+          dy: -20,
+          dx: 0
+          }
+        ]
+
+        const makeAnnotations = d3.annotation()
+          .annotations(annotations)
+        d3.select("#bar-chart").append("g")
+          .call(makeAnnotations)
+      }
+    </script>
+    <!-- Scene 3: User interactive scatterplot -->
+    <br>
+    <h3 class="text-center">Retail Price of Fruit</h3>
+    <p>
+      So far, we have learned all about fresh fruits, where they come from, and how much they cost. What about other fruit types? The scatterplot below shows
+      the average retail price for each fruit per pound or pint. This information is plotted against the average yield for each fruit, which is a measure that
+      tells you how much usable product there is after processing is complete. Click on the buttons below to see differences between the listed forms of fruit. 
+    </p>
+    <div style="text-align: center">
+      <svg id="scatterplot" width=500 height=510></svg>
+      <div class="text-center">
+        <div class="btn-group" role="group">
+          <button type="button" onclick="getScatterplot('fresh')" class="btn btn-outline-primary">Fresh</button>
+          <button type="button" onclick="getScatterplot('frozen')" class="btn btn-outline-primary">Frozen</button>
+          <button type="button" onclick="getScatterplot('dried')" class="btn btn-outline-primary">Dried</button>
+          <button type="button" onclick="getScatterplot('canned')" class="btn btn-outline-primary">Canned</button>
+          <button type="button" onclick="getScatterplot('juice')" class="btn btn-outline-primary">Fruit Juice</button>
+        </div>
+      </div>
+    </div>
+    <br>
+  </div>
+  <script src="js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
